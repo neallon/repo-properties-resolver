@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm") version "2.1.20"
-    signing
     `maven-publish`
+    id ("org.danilopianini.publish-on-central") version "9.1.0"
 }
 
 group = "io.github.neallon"
@@ -18,60 +18,44 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
 kotlin {
-    jvmToolchain(11)
+    jvmToolchain(11) // 你需要的JDK版本
 }
+
 signing {
-    useGpgCmd() // 使用系统 GPG 命令
+    useGpgCmd() // 调用本地 gpg 命令签名，如果你本机已配置 gpg agent
     sign(publishing.publications)
 }
 
+
 publishing {
     publications {
-        create<MavenPublication>("mavenJava") {
-            from(components["java"])
-            groupId = project.group.toString()
-            artifactId = "repo-properties-resolver"
-            version = project.version.toString()
-
+        withType<MavenPublication> {
             pom {
-                name.set("Repo Properties Resolver")
-                description.set("A lightweight utility to resolve Maven repositories from gradle.properties")
-                url.set("https://github.com/neallon/repo-properties-resolver")
-
-                licenses {
-                    license {
-                        name.set("The Apache License, Version 2.0")
-                        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
-                    }
-                }
-
                 developers {
                     developer {
-                        id.set("neallon")
-                        name.set("neallon")
+                        name.set("Repo Properties Resolver")
                         email.set("zhai.yf@foxmail.com")
+                        url.set("https://github.com/neallon/repo-properties-resolver")
                     }
-                }
-
-                scm {
-                    connection.set("scm:git:git://github.com/neallon/repo-properties-resolver.git")
-                    developerConnection.set("scm:git:ssh://github.com/neallon/repo-properties-resolver.git")
-                    url.set("https://github.com/neallon/repo-properties-resolver")
                 }
             }
         }
     }
+}
 
-    repositories {
-        maven {
-            name = "OSSRH"
-            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+publishOnCentral {
+    repoOwner.set("neallon")
+    projectDescription.set("A lightweight Kotlin library to resolve Maven repository definitions from gradle.properties for Gradle plugins.")
+    projectLongName.set(project.name)
+    licenseName.set("Apache License, Version 2.0")
+    licenseUrl.set("http://www.apache.org/licenses/LICENSE-2.0")
+    projectUrl.set("https://github.com/${repoOwner.get()}/${project.name}")
+    scmConnection.set("scm:git:https://github.com/${repoOwner.get()}/${project.name}")
 
-            credentials {
-                username = findProperty("ossrhUsername") as String? ?: System.getenv("OSSRH_USERNAME")
-                password = findProperty("ossrhPassword") as String? ?: System.getenv("OSSRH_PASSWORD")
-            }
-        }
+    repository(projectUrl.get(), "GitHub") {
+        user.set(findProperty("GITHUB_USERNAME")as String)
+        password.set(findProperty("GITHUB_TOKEN") as String)
     }
 }
