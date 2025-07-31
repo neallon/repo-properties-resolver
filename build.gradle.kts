@@ -49,8 +49,8 @@ publishing {
                 developers {
                     developer {
                         id.set("neallon")
-                        name.set("Kevin Lau")
-                        email.set("your-email@example.com")
+                        name.set("neallon")
+                        email.set("zhai.yf@foxmail.com")
                     }
                 }
 
